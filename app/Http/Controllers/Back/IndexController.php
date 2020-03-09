@@ -17,9 +17,20 @@ class IndexController extends BaseController {
     public function index()
     {
         $permissions = json_decode(session()->get('permission'), true);
-        $modules = ModuleModel::getModuleByMid(0);
-        foreach ($modules as &$module){
-            $module['sub'] = ModuleModel::getModuleByMid($module['mId']);
+        $modulesArr = ModuleModel::getModuleByMid(0);
+        $modules = [];
+        foreach ($modulesArr as $module){
+            $subModule = ModuleModel::getModuleByMid($module['mId']);
+            $needShow = false;
+            foreach ($subModule as $sub) {
+                if(array_key_exists($sub['modUrl'], $permissions)){
+                    $needShow = true;
+                }
+            }
+            if($needShow){
+                $module['sub'] = $subModule;
+                $modules[] = $module;
+            }
         }
 //        dd($modules,$permissions);
 
